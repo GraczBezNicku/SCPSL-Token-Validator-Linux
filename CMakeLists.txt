@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 3.10)
 
 project(tokenvalidatorlinux)
 
-add_executable(tokenvalidatorlinux main.cpp)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+        src/*.cpp
+        src/*.hpp
+        src/*.h
+)
+
+find_package(wxWidgets REQUIRED COMPONENTS net core base)
+
+if(wxWidgets_USE_FILE) # not defined in CONFIG mode
+    include(${wxWidgets_USE_FILE})
+endif()
+
+add_executable(tokenvalidatorlinux ${SOURCES})
+
+target_link_libraries(tokenvalidatorlinux ${wxWidgets_LIBRARIES})
 
 install(TARGETS tokenvalidatorlinux RUNTIME DESTINATION bin)
