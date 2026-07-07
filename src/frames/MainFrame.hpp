@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../modules/ApiModule.hpp"
+
 #include "wx/wx.h"
 
 class MainFrame : public wxFrame
@@ -7,6 +9,9 @@ class MainFrame : public wxFrame
 public:
     MainFrame();
 private:
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
+    ApiModule *apiModule;
+
+    auto OnProvideToken(wxCommandEvent& event) -> void;
+    auto OnExit(wxCommandEvent& event) -> void;
+    auto OnAbout(wxCommandEvent& event) -> void;
 };

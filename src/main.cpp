@@ -5,10 +5,10 @@
 class TokenValidaorApp : public wxApp
 {
 public:
-    bool OnInit() override;
+    auto OnInit() -> bool override;
 };
 
-bool TokenValidaorApp::OnInit()
+auto TokenValidaorApp::OnInit() -> bool
 {
     MainFrame *frame = new MainFrame();
     frame->Show(true);
