@@ -38,6 +38,11 @@ auto QrModule::ScanScreensForCode() -> std::string
     }
 
     cv::Mat image = cv::imread(tempFile);
+    cv::Mat grayImage, processedImage;
+
+    cv::cvtColor(image, grayImage, cv::COLOR_BGR2GRAY);
+    cv::GaussianBlur(grayImage, processedImage, cv::Size(3, 3), 0);
+    cv::adaptiveThreshold(processedImage, processedImage, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 51, 15);
 
     std::filesystem::remove(tempFile);
 
@@ -48,7 +53,7 @@ auto QrModule::ScanScreensForCode() -> std::string
 
     cv::QRCodeDetector qrDecoder;
     std::vector<cv::Point> points;
-    std::string qrData = qrDecoder.detectAndDecode(image, points);
+    std::string qrData = qrDecoder.detectAndDecode(processedImage, points);
 
     if (!qrData.empty())
     {

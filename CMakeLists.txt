@@ -9,7 +9,7 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 )
 
 find_package(wxWidgets REQUIRED COMPONENTS net core base)
-
+find_package(nlohmann_json REQUIRED)
 find_package(OpenCV REQUIRED)
 
 if(wxWidgets_USE_FILE) # not defined in CONFIG mode
@@ -21,6 +21,7 @@ add_executable(tokenvalidatorlinux ${SOURCES})
 target_link_libraries(tokenvalidatorlinux
     ${wxWidgets_LIBRARIES}
     ${OpenCV_LIBS}
+    nlohmann_json::nlohmann_json
 )
 
 install(TARGETS tokenvalidatorlinux RUNTIME DESTINATION bin)

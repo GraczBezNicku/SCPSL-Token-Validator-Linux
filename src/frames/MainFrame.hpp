@@ -16,7 +16,9 @@ private:
     wxStaticText* tokenInfoText;
     wxStaticText* userStatusText;
 
-    std::string decodedUserId = "";
+    wxButton* clipboardButton;
+    wxButton* scanButton;
+    wxButton* copyButton;
 
     auto ValidateAndDisplay(const std::string& token) -> void;
 

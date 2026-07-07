@@ -29,9 +29,9 @@ MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "SCP:SL Token Validator for 
 
     wxPanel* panel = new wxPanel(this, wxID_ANY);
 
-    wxButton* clipboardButton = new wxButton(panel, ElementIDs::Button_TokenFromClipboard, "Token from clipboard");
-    wxButton* scanButton = new wxButton(panel, ElementIDs::Button_ScanQRFromScreen, "Scan QR from screen");
-    wxButton* copyButton = new wxButton(panel, ElementIDs::Button_CopyUserId, "Copy UserID");
+    clipboardButton = new wxButton(panel, ElementIDs::Button_TokenFromClipboard, "Token from clipboard");
+    scanButton = new wxButton(panel, ElementIDs::Button_ScanQRFromScreen, "Scan QR from screen");
+    copyButton = new wxButton(panel, ElementIDs::Button_CopyUserId, "Copy UserID");
 
     tokenInfoText = new wxStaticText(panel, wxID_ANY, "UserID:\nNickname:\nToken issuance date:\nToken expiration date:", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
 
@@ -74,7 +74,9 @@ MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "SCP:SL Token Validator for 
 
 auto MainFrame::ValidateAndDisplay(const std::string& token) -> void
 {
-    decodedUserId = "";
+    clipboardButton->Disable();
+    scanButton->Disable();
+    copyButton->Disable();
 
     tokenInfoText->SetLabelText("UserID:\nNickname:\nToken issuance date:\nToken expiration date:");
     tokenInfoText->Refresh();
@@ -83,7 +85,23 @@ auto MainFrame::ValidateAndDisplay(const std::string& token) -> void
     userStatusText->SetForegroundColour(wxColour(255, 255, 255));
     userStatusText->Refresh();
 
-    // Send to validate. Parse json etc.
+    std::string result = apiModule->ValidateAndGetStatusOfAuthToken(this, token);
+
+    tokenInfoText->SetLabelText(
+        "UserID: " + apiModule->lastDecodedData.UserId + "\n" +
+        "Nickname: " + apiModule->lastDecodedData.Nickname + "\n" +
+        "Token issuance date: " + apiModule->lastDecodedData.IssuanceTime + "\n" +
+        "Token expiration date: " + apiModule->lastDecodedData.ExpirationTime + "\n"
+    );
+    tokenInfoText->Refresh();
+
+    userStatusText->SetLabelText(result);
+    userStatusText->SetForegroundColour(apiModule->lastDecodedData.StatusColor);
+    userStatusText->Refresh();
+
+    clipboardButton->Enable(true);
+    scanButton->Enable(true);
+    copyButton->Enable(true);
 }
 
 auto MainFrame::OnTokenFromClipboard(wxCommandEvent& event) -> void
@@ -120,13 +138,13 @@ auto MainFrame::OnScanQrCodeFromScreen(wxCommandEvent& event) -> void
 
 auto MainFrame::OnCopyUserId(wxCommandEvent& event) -> void
 {
-    if (decodedUserId == "")
+    if (apiModule->lastDecodedData.UserId == "")
         return;
 
     if (!wxTheClipboard->Open())
         return;
 
-    wxTheClipboard->SetData(new wxTextDataObject(decodedUserId));
+    wxTheClipboard->SetData(new wxTextDataObject(apiModule->lastDecodedData.UserId));
     wxTheClipboard->Close();
 }
 
