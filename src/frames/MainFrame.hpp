@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../modules/ApiModule.hpp"
+#include "../modules/QrModule.hpp"
 
 #include "wx/wx.h"
 
@@ -10,6 +11,7 @@ public:
     MainFrame();
 private:
     ApiModule *apiModule;
+    QrModule *qrModule;
 
     wxStaticText* tokenInfoText;
     wxStaticText* userStatusText;

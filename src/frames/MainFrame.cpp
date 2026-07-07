@@ -20,6 +20,7 @@ MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "SCP:SL Token Validator for 
 
     SetMenuBar(menuBar);
 
+    qrModule = new QrModule;
     apiModule = new ApiModule;
 
     CreateStatusBar();
@@ -77,7 +78,11 @@ auto MainFrame::OnTokenFromClipboard(wxCommandEvent& event) -> void
 
 auto MainFrame::OnScanQrCodeFromScreen(wxCommandEvent& event) -> void
 {
+    Show(false);
 
+    std::string result = qrModule->ScanScreensForCode();
+
+    Show(true);
 }
 
 auto MainFrame::OnCopyUserId(wxCommandEvent& event) -> void
