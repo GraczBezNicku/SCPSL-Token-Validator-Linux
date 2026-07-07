@@ -11,6 +11,12 @@ public:
 private:
     ApiModule *apiModule;
 
+    wxStaticText* tokenInfoText;
+    wxStaticText* userStatusText;
+
+    auto OnTokenFromClipboard(wxCommandEvent& event) -> void;
+    auto OnScanQrCodeFromScreen(wxCommandEvent& event) -> void;
+    auto OnCopyUserId(wxCommandEvent& event) -> void;
     auto OnProvideToken(wxCommandEvent& event) -> void;
     auto OnExit(wxCommandEvent& event) -> void;
     auto OnAbout(wxCommandEvent& event) -> void;
