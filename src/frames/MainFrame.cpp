@@ -1,6 +1,7 @@
 #include "MainFrame.hpp"
 
 #include "wx/textdlg.h"
+#include "wx/clipbrd.h"
 
 #include "../enums/ElementIDs.hpp"
 
@@ -39,7 +40,7 @@ MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "SCP:SL Token Validator for 
     tokenInfoText->SetFont(tokenInfoFont);
     tokenInfoText->Refresh();
 
-    userStatusText = new wxStaticText(panel, wxID_ANY, "Ready", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL);
+    userStatusText = new wxStaticText(panel, wxID_ANY, "Ready", wxDefaultPosition, wxDefaultSize);
     userStatusText->SetForegroundColour(wxColour(0, 255, 255));
 
     wxFont userStatusFont = tokenInfoText->GetFont();
@@ -71,9 +72,39 @@ MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "SCP:SL Token Validator for 
     Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
 }
 
+auto MainFrame::ValidateAndDisplay(const std::string& token) -> void
+{
+    decodedUserId = "";
+
+    tokenInfoText->SetLabelText("UserID:\nNickname:\nToken issuance date:\nToken expiration date:");
+    tokenInfoText->Refresh();
+
+    userStatusText->SetLabelText("Token validation in progress...");
+    userStatusText->SetForegroundColour(wxColour(255, 255, 255));
+    userStatusText->Refresh();
+
+    // Send to validate. Parse json etc.
+}
+
 auto MainFrame::OnTokenFromClipboard(wxCommandEvent& event) -> void
 {
+    if (!wxTheClipboard->Open())
+        return;
 
+    if (!wxTheClipboard->IsSupported(wxDF_TEXT))
+    {
+        wxTheClipboard->Close();
+        return;
+    }
+
+    wxTextDataObject data;
+    wxTheClipboard->GetData(data);
+
+    std::string result = data.GetText().ToStdString();
+
+    wxTheClipboard->Close();
+
+    ValidateAndDisplay(result);
 }
 
 auto MainFrame::OnScanQrCodeFromScreen(wxCommandEvent& event) -> void
@@ -83,11 +114,20 @@ auto MainFrame::OnScanQrCodeFromScreen(wxCommandEvent& event) -> void
     std::string result = qrModule->ScanScreensForCode();
 
     Show(true);
+
+    ValidateAndDisplay(result);
 }
 
 auto MainFrame::OnCopyUserId(wxCommandEvent& event) -> void
 {
+    if (decodedUserId == "")
+        return;
 
+    if (!wxTheClipboard->Open())
+        return;
+
+    wxTheClipboard->SetData(new wxTextDataObject(decodedUserId));
+    wxTheClipboard->Close();
 }
 
 auto MainFrame::OnProvideToken(wxCommandEvent& event) -> void

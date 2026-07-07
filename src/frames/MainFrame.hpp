@@ -16,6 +16,10 @@ private:
     wxStaticText* tokenInfoText;
     wxStaticText* userStatusText;
 
+    std::string decodedUserId = "";
+
+    auto ValidateAndDisplay(const std::string& token) -> void;
+
     auto OnTokenFromClipboard(wxCommandEvent& event) -> void;
     auto OnScanQrCodeFromScreen(wxCommandEvent& event) -> void;
     auto OnCopyUserId(wxCommandEvent& event) -> void;
