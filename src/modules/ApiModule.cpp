@@ -24,7 +24,7 @@ auto ApiModule::RefreshToken() -> void
     }
 }
 
-auto ApiModule::ReplaceToken(std::string newToken) -> void
+auto ApiModule::ReplaceToken(const std::string& newToken) -> void
 {
     std::remove("token.txt");
 
@@ -43,7 +43,7 @@ auto ApiModule::GetAuthenticationStatus() -> std::string
     return "Authenticated using staff API token.";
 }
 
-auto ApiModule::ValidateAndGetStatusOfAuthToken(std::string authToken) -> std::string
+auto ApiModule::ValidateAndGetStatusOfAuthToken(const std::string& authToken) -> std::string
 {
     return "Auth Token validation not implemented.";
 }
