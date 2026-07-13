@@ -7,5 +7,5 @@ class QrModule
 public:
     QrModule();
 
-    auto ScanScreensForCode() -> std::string;
+    auto ScanScreensForCode(std::string& error) -> std::string;
 };

@@ -129,9 +129,18 @@ auto MainFrame::OnScanQrCodeFromScreen(wxCommandEvent& event) -> void
 {
     Show(false);
 
-    std::string result = qrModule->ScanScreensForCode();
+    std::string scanningError = "";
+    std::string result = qrModule->ScanScreensForCode(scanningError);
 
     Show(true);
+
+    if (scanningError != "")
+    {
+        userStatusText->SetLabelText(scanningError);
+        userStatusText->SetForegroundColour(wxColour(140, 0, 0));
+        userStatusText->Refresh();
+        return;
+    }
 
     ValidateAndDisplay(result);
 }

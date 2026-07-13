@@ -10,7 +10,7 @@ QrModule::QrModule()
 
 }
 
-auto QrModule::ScanScreensForCode() -> std::string
+auto QrModule::ScanScreensForCode(std::string& error) -> std::string
 {
     std::string tempFile = "codeCapture.bmp";
 
@@ -35,14 +35,16 @@ auto QrModule::ScanScreensForCode() -> std::string
 
     if (!std::filesystem::exists(tempFile))
     {
-        return "Could not capture screenshot. Insufficient permissions?";
+        error = "Could not capture screenshot. Insufficient permissions?";
+        return "";
     }
 
     wxImage originalImage;
 
     if (!originalImage.LoadFile(tempFile, wxBITMAP_TYPE_BMP))
     {
-        return "Could not open screenshot as wxImage.";
+        error = "Could not open screenshot as wxImage.";
+        return "";
     }
 
     wxImage grayscaleImage = originalImage.ConvertToGreyscale();
@@ -72,5 +74,6 @@ auto QrModule::ScanScreensForCode() -> std::string
         return codes[0].text();
     }
 
-    return "No QR code was detected.";
+    error = "No QR code was detected.";
+    return "";
 }
