@@ -1,8 +1,9 @@
 #include "QrModule.hpp"
 
-#include <filesystem>
+#include "wx/image.h"
+#include "ZXing/ReadBarcode.h"
 
-#include "opencv2/opencv.hpp"
+#include <filesystem>
 
 QrModule::QrModule()
 {
@@ -11,7 +12,7 @@ QrModule::QrModule()
 
 auto QrModule::ScanScreensForCode() -> std::string
 {
-    std::string tempFile = "codeCapture.png";
+    std::string tempFile = "codeCapture.bmp";
 
     if (std::filesystem::exists(tempFile))
     {
@@ -37,27 +38,38 @@ auto QrModule::ScanScreensForCode() -> std::string
         return "Could not capture screenshot. Insufficient permissions?";
     }
 
-    cv::Mat image = cv::imread(tempFile);
-    cv::Mat grayImage, processedImage;
+    wxImage originalImage;
 
-    cv::cvtColor(image, grayImage, cv::COLOR_BGR2GRAY);
-    cv::GaussianBlur(grayImage, processedImage, cv::Size(3, 3), 0);
-    cv::adaptiveThreshold(processedImage, processedImage, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 51, 15);
+    if (!originalImage.LoadFile(tempFile, wxBITMAP_TYPE_BMP))
+    {
+        return "Could not open screenshot as wxImage.";
+    }
+
+    wxImage grayscaleImage = originalImage.ConvertToGreyscale();
+
+    int width = grayscaleImage.GetWidth();
+    int height = grayscaleImage.GetHeight();
+    std::vector<uint8_t> luminanceBuffer(width * height);
+
+    unsigned char* rgbData = grayscaleImage.GetData();
+
+    for (int i = 0; i < width * height; ++i)
+    {
+        // Covnert wxImage's grayscale into 1 byte per pixel for ZXing
+        uint8_t grayValue = rgbData[i * 3];
+
+        // Cutting out artifacts
+        luminanceBuffer[i] = (grayValue > 128) ? 255 : 0;
+    }
 
     std::filesystem::remove(tempFile);
 
-    if (image.empty())
-    {
-        return "Could not process captured image.";
-    }
+    ZXing::ImageView zxImage = ZXing::ImageView(luminanceBuffer.data(), width, height, ZXing::ImageFormat::Lum);
+    ZXing::Results codes = ZXing::ReadBarcodes(zxImage, {});
 
-    cv::QRCodeDetector qrDecoder;
-    std::vector<cv::Point> points;
-    std::string qrData = qrDecoder.detectAndDecode(processedImage, points);
-
-    if (!qrData.empty())
+    if (!codes.empty())
     {
-        return qrData;
+        return codes[0].text();
     }
 
     return "No QR code was detected.";

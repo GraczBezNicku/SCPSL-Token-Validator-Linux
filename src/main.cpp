@@ -10,6 +10,7 @@ public:
 
 auto TokenValidaorApp::OnInit() -> bool
 {
+    wxInitAllImageHandlers();
     MainFrame *frame = new MainFrame();
     frame->Show(true);
     return true;
